@@ -1,8 +1,8 @@
-require('dotenv').config();
+require("dotenv").config();
 
-const express = require('express');
-const querystring = require('querystring');
-const axios = require('axios');
+const express = require("express");
+const querystring = require("querystring");
+const axios = require("axios");
 
 const app = express();
 const port = 8888;
@@ -11,18 +11,18 @@ const CLIENT_ID = process.env.CLIENT_ID;
 const CLIENT_SECRET = process.env.CLIENT_SECRET;
 const REDIRECT_URI = process.env.REDIRECT_URI;
 
-app.get('/', (req, res) => {
+app.get("/", (req, res) => {
   const data = {
-    name: 'Henry',
+    name: "Henry",
     isAwesome: true,
   };
 
   res.json(data);
 });
 
-app.get('/awesome-generator', (req, res) => {
+app.get("/awesome-generator", (req, res) => {
   const { name, isAwesome } = req.query;
-  res.send(`${name} is ${JSON.parse(isAwesome) ? 'really' : 'not'} awesome`);
+  res.send(`${name} is ${JSON.parse(isAwesome) ? "really" : "not"} awesome`);
 });
 
 
@@ -32,8 +32,8 @@ app.get('/awesome-generator', (req, res) => {
  * @return {string} The generated string
  */
 const generateRandomString = length => {
-  let text = '';
-  const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  let text = "";
+  const possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
   for (let i = 0; i < length; i++) {
     text += possible.charAt(Math.floor(Math.random() * possible.length));
   }
@@ -41,17 +41,17 @@ const generateRandomString = length => {
 };
 
 
-const stateKey = 'spotify_auth_state';
+const stateKey = "spotify_auth_state";
 
-app.get('/login', (req, res) => {
+app.get("/login", (req, res) => {
   const state = generateRandomString(16);
   res.cookie(stateKey, state);
 
-  const scope = 'user-read-private user-read-email';
+  const scope = "user-read-private user-read-email";
 
   const queryParams = querystring.stringify({
     client_id: CLIENT_ID,
-    response_type: 'code',
+    response_type: "code",
     redirect_uri: REDIRECT_URI,
     state: state,
     scope: scope,
@@ -61,20 +61,20 @@ app.get('/login', (req, res) => {
 });
 
 
-app.get('/callback', (req, res) => {
+app.get("/callback", (req, res) => {
   const code = req.query.code || null;
 
   axios({
-    method: 'post',
-    url: 'https://accounts.spotify.com/api/token',
+    method: "post",
+    url: "https://accounts.spotify.com/api/token",
     data: querystring.stringify({
-      grant_type: 'authorization_code',
+      grant_type: "authorization_code",
       code: code,
       redirect_uri: REDIRECT_URI
     }),
     headers: {
-      'content-type': 'application/x-www-form-urlencoded',
-      Authorization: `Basic ${new Buffer.from(`${CLIENT_ID}:${CLIENT_SECRET}`).toString('base64')}`,
+      "content-type": "application/x-www-form-urlencoded",
+      Authorization: `Basic ${new Buffer.from(`${CLIENT_ID}:${CLIENT_SECRET}`).toString("base64")}`,
     },
   })
     .then(response => {
@@ -95,7 +95,7 @@ app.get('/callback', (req, res) => {
 
       } else {
         res.redirect(`/?${querystring.stringify({
-          error: 'invalid_token'})}`);
+          error: "invalid_token"})}`);
       }
     })
     .catch(error => {
@@ -104,19 +104,19 @@ app.get('/callback', (req, res) => {
 });
 
 
-app.get('/refresh_token', (req, res) => {
+app.get("/refresh_token", (req, res) => {
   const { refresh_token } = req.query;
 
   axios({
-    method: 'post',
-    url: 'https://accounts.spotify.com/api/token',
+    method: "post",
+    url: "https://accounts.spotify.com/api/token",
     data: querystring.stringify({
-      grant_type: 'refresh_token',
+      grant_type: "refresh_token",
       refresh_token: refresh_token
     }),
     headers: {
-      'content-type': 'application/x-www-form-urlencoded',
-      Authorization: `Basic ${new Buffer.from(`${CLIENT_ID}:${CLIENT_SECRET}`).toString('base64')}`,
+      "content-type": "application/x-www-form-urlencoded",
+      Authorization: `Basic ${new Buffer.from(`${CLIENT_ID}:${CLIENT_SECRET}`).toString("base64")}`,
     },
   })
     .then(response => {
