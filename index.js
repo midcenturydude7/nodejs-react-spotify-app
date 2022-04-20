@@ -47,7 +47,11 @@ app.get("/login", (req, res) => {
   const state = generateRandomString(16);
   res.cookie(stateKey, state);
 
-  const scope = "user-read-private user-read-email";
+  const scope = [
+    "user-read-private", 
+    "user-read-email", 
+    "user-top-read"
+  ].join(" ");
 
   const queryParams = querystring.stringify({
     client_id: CLIENT_ID,
@@ -89,9 +93,9 @@ app.get("/callback", (req, res) => {
           access_token,
           refresh_token,
           expires_in,
-        })
+        });
 
-        res.redirect(`http://localhost:3000?${queryParams}`)
+        res.redirect(`http://localhost:3000?${queryParams}`);
 
       } else {
         res.redirect(`/?${querystring.stringify({

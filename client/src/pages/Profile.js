@@ -1,15 +1,29 @@
 import React from 'react';
-import { getCurrentUserProfile } from '../spotify';
+import { getCurrentUserProfile, getCurrentUserPlaylists, getTopArtists, getTopTracks } from '../spotify';
 import { catchErrors } from '../utils';
+import { SectionWrapper, ArtistsGrid, TrackList, PlaylistsGrid } from '../components';
 import { StyledHeader } from '../styles';
 
 const Profile = () => {
   const [profile, setProfile] = React.useState(null);
+  const [playlists, setPlaylists] = React.useState(null);
+  const [topArtists, setTopArtists] = React.useState(null);
+  const [topTracks, setTopTracks] = React.useState(null);
 
   React.useEffect(() => {
     const fetchData = async () => {
-      const { data } = await getCurrentUserProfile();
-      setProfile(data);
+      const userProfile = await getCurrentUserProfile();
+      setProfile(userProfile.data);
+
+      const userPlaylists = await getCurrentUserPlaylists();
+      setPlaylists(userPlaylists.data);
+
+      const userTopArtists = await getTopArtists();
+      setTopArtists(userTopArtists.data);
+
+      
+      const userTopTracks = await getTopTracks();
+      setTopTracks(userTopTracks.data);
     };
 
     catchErrors(fetchData());
@@ -28,6 +42,9 @@ const Profile = () => {
                 <div className="header__overline">Profile</div>
                 <h1 className="header__name">{profile.display_name}</h1>
                 <p className="header__meta">
+                  {playlists && (
+                    <span>{playlists.total} Playlist{playlists.total !== 1 ? 's' : ''}</span>
+                  )}
                   <span>
                     {profile.followers.total} Follower{profile.followers.total !== 1 ? 's' : ''}
                   </span>
@@ -35,10 +52,26 @@ const Profile = () => {
               </div>
             </div>
           </StyledHeader>
+
+            {topArtists && topTracks && playlists && (
+              <main>
+                <SectionWrapper title="Top artists this month" seeAllLink="/top-artists">
+                  <ArtistsGrid artists={topArtists.items.slice(0, 10)} />
+                </SectionWrapper>
+
+                <SectionWrapper title="Top tracks this month" seeAllLink="/top-tracks">
+                  <TrackList tracks={topTracks.items.slice(0, 10)} />
+                </SectionWrapper>
+
+                <SectionWrapper title="Public Playlists" seeAllLink="/playlists">
+                  <PlaylistsGrid playlists={playlists.items.slice(0, 10)} />
+                </SectionWrapper>
+              </main>
+            )}
         </>
       )}
     </>
-  );
+  )
 };
 
 export default Profile;
