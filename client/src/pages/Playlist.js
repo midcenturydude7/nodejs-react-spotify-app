@@ -1,7 +1,7 @@
 import React from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
-import { getPlaylistById } from '../spotify';
+import { getPlaylistById, getAudioFeaturesForTracks } from '../spotify';
 import { catchErrors } from '../utils';
 import { TrackList, SectionWrapper } from '../components';
 import { StyledHeader } from '../styles';
