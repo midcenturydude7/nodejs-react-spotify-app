@@ -11,6 +11,7 @@ const Playlist = () => {
   const [playlist, setPLaylist] = React.useState(null);
   const [tracksData, setTracksData] = React.useState(null);
   const [tracks, setTracks] = React.useState(null);
+  const [audioFeatures, setAudioFeatures] = React.useState(null);
 
   React.useEffect(() => {
     const fetchData = async () => {
@@ -42,8 +43,21 @@ const Playlist = () => {
     ]));
 
     catchErrors(fetchMoreData());
-  }, [tracksData]);
+ 
   
+    // Also update the audioFeatures state variable using the tracks IDs
+    const fetchAudioFeatures = async () => {
+      const ids = tracksData.items.map(({ track }) => track.id).join(',');
+      const { data } = await getAudioFeaturesForTracks(ids);
+      setAudioFeatures(audioFeatures => ([
+        ...audioFeatures ? audioFeatures : [],
+        ...data['audio_features']
+      ]));
+    };
+    catchErrors(fetchAudioFeatures());
+
+  }, [tracksData]);
+
   const tracksForTracklist = React.useMemo(() => {
     if (!tracks) {
       return;
